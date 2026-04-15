@@ -83,13 +83,14 @@ const Map = ({ events, onMarkerClick, onMapClick }: MapProps) => {
 
             const marker = new mapboxgl.Marker(el)
                 .setLngLat([event.longitude, event.latitude])
-                .addTo(mapRef.current!)
-                .getElement().addEventListener('click', () => {
-                    onMarkerClick(event);
-                });
+                .addTo(mapRef.current!);
+
+            el.addEventListener('click', (e) => {
+                e.stopPropagation();
+                onMarkerClick(event);
+            });
             
-            // @ts-ignore - manual tracking since the event listener doesn't return the marker
-            markersRef.current.push(new mapboxgl.Marker(el).setLngLat([event.longitude, event.latitude]).addTo(mapRef.current!));
+            markersRef.current.push(marker);
         });
     }, [events]);
 

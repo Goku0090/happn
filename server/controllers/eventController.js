@@ -13,10 +13,10 @@ exports.createEvent = async (req, res) => {
 
     try {
         const result = await db.query(
-            `INSERT INTO events (title, description, category, latitude, longitude, location, start_time, end_time, created_by)
-             VALUES ($1, $2, $3, $4, $5, ST_SetSRID(ST_Point($5, $4), 4326)::geography, $6, $7, $8)
-             RETURNING id, title, description, category, latitude, longitude, start_time, end_time`,
-            [title, description, category, latitude, longitude, start_time, end_time, userId]
+            `INSERT INTO events (title, description, category, latitude, longitude, location, start_time, end_time, created_by, organizer_name)
+             VALUES ($1, $2, $3, $4, $5, ST_SetSRID(ST_Point($5, $4), 4326)::geography, $6, $7, $8, $9)
+             RETURNING id, title, description, category, latitude, longitude, start_time, end_time, organizer_name`,
+            [title, description, category, latitude, longitude, start_time, end_time, userId, organizer_name]
         );
 
         const newEvent = result.rows[0];
