@@ -10,7 +10,7 @@ interface MapProps {
     onMapClick: (coords: { lng: number, lat: number }) => void;
 }
 
-const Map = ({ events, onMarkerClick }: MapProps) => {
+const Map = ({ events, onMarkerClick, onMapClick }: MapProps) => {
     const mapContainerRef = useRef<HTMLDivElement>(null);
     const mapRef = useRef<mapboxgl.Map | null>(null);
     const markersRef = useRef<mapboxgl.Marker[]>([]);
