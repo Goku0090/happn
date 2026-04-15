@@ -22,10 +22,12 @@ const io = new Server(server, {
 app.use(cors());
 app.use(express.json());
 
-// Database Pool - Use environment variable for production
+// Database Pool - Force SSL for remote connections
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
-    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
+    ssl: process.env.DATABASE_URL?.includes('localhost') || process.env.DATABASE_URL?.includes('127.0.0.1')
+        ? false 
+        : { rejectUnauthorized: false }
 });
 
 // Test DB Connection
