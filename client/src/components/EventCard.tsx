@@ -180,11 +180,11 @@ const EventCard: React.FC<EventCardProps> = ({ event, onClose, onOpenChat }) => 
                     </div>
                 </div>
 
-                <button 
                     onClick={async () => {
                         try {
+                            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
                             const token = localStorage.getItem('token');
-                            await axios.post(`http://localhost:5000/api/events/${event.id}/join`, {}, {
+                            await axios.post(`${API_URL}/api/events/${event.id}/join`, {}, {
                                 headers: { Authorization: `Bearer ${token}` }
                             });
                             alert('You have joined this experience! 🎉');
