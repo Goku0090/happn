@@ -15,7 +15,8 @@ export default function SignupPage() {
         e.preventDefault();
         setLoading(true);
         try {
-            const res = await axios.post('http://localhost:5000/api/auth/signup', formData);
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+            const res = await axios.post(`${API_URL}/api/auth/signup`, formData);
             localStorage.setItem('token', res.data.token);
             localStorage.setItem('user', JSON.stringify(res.data.user));
             router.push('/');

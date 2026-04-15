@@ -13,8 +13,9 @@ export default function AuthPage() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         const url = isLogin ? '/api/auth/login' : '/api/auth/signup';
+        const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
         try {
-            const res = await axios.post(`http://localhost:5000${url}`, formData);
+            const res = await axios.post(`${API_URL}${url}`, formData);
             localStorage.setItem('token', res.data.token);
             localStorage.setItem('user', JSON.stringify(res.data.user));
             router.push('/');
