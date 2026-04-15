@@ -13,7 +13,8 @@ import axios from 'axios';
 import { AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 
-const socket = io(process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000');
+const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
+const socket = io(API_URL);
 
 export default function Home() {
     const [events, setEvents] = useState<any[]>([]);
@@ -40,7 +41,7 @@ export default function Home() {
 
         const fetchEvents = async () => {
             try {
-                const res = await axios.get('http://localhost:5000/api/events?lat=12.9716&lng=77.5946&radius=50000');
+                const res = await axios.get(`${API_URL}/api/events?lat=12.9716&lng=77.5946&radius=50000`);
                 setEvents(res.data);
             } catch (err) {
                 console.error('Error fetching events:', err);

@@ -22,10 +22,10 @@ const io = new Server(server, {
 app.use(cors());
 app.use(express.json());
 
-// Database Pool
+// Database Pool - Use environment variable for production
 const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
-    ssl: { rejectUnauthorized: false }
+    ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
 });
 
 // Test DB Connection
@@ -52,6 +52,7 @@ app.use('/api/events', eventRoutes);
 app.get('/', (req, res) => {
     res.send('Live Event Map API is running');
 });
+
 // WebSocket connection
 io.on('connection', (socket) => {
     console.log('A user connected:', socket.id);

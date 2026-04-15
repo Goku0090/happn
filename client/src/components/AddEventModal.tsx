@@ -30,8 +30,9 @@ const AddEventModal = ({ onClose, initialCoords }: { onClose: () => void, initia
                 finalLng = pos.coords.longitude;
             }
 
+            const API_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000';
             const token = localStorage.getItem('token');
-            const res = await axios.post('http://localhost:5000/api/events', {
+            const res = await axios.post(`${API_URL}/api/events`, {
                 ...formData,
                 latitude: finalLat,
                 longitude: finalLng,
