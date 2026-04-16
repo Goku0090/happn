@@ -1,6 +1,12 @@
 const express = require('express');
 const http = require('http');
+const dns = require('dns');
 const { Server } = require('socket.io');
+
+// Force IPv4 for all network connections (resolves ENETUNREACH on Render/Supabase)
+if (dns.setDefaultResultOrder) {
+    dns.setDefaultResultOrder('ipv4first');
+}
 const cors = require('cors');
 const dotenv = require('dotenv');
 const { Pool } = require('pg');
