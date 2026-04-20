@@ -96,3 +96,77 @@ exports.getMyEvents = async (req, res) => {
         res.status(500).json({ message: 'Error fetching your events' });
     }
 };
+
+// --- CHAT & PARTICIPANT MANAGEMENT ---
+
+exports.getEventMessages = async (req, res) => {
+    const { id } = req.params;
+    const { type } = req.query; // 'query' or 'group'
+    const db = req.db;
+
+    try {
+        const result = await db.query(
+            'SELECT * FROM messages WHERE event_id = $1 AND type = $2 ORDER BY created_at ASC LIMIT 100',
+            [id, type || 'query']
+        );
+        res.json(result.rows);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Error fetching messages' });
+    }
+};
+
+exports.getParticipants = async (req, res) => {
+    const { id } = req.params;
+    const userId = req.user.id;
+    const db = req.db;
+
+    try {
+        // Verify user is the organizer
+        const eventCheck = await db.query('SELECT created_by FROM events WHERE id = $1', [id]);
+        if (eventCheck.rows[0]?.created_by !== userId) {
+            return res.status(403).json({ message: 'Forbidden' });
+        }
+
+        const result = await db.query(
+            `SELECT p.*, u.name, u.email 
+             FROM event_participants p 
+             JOIN users u ON p.user_id = u.id 
+             WHERE p.event_id = $1`,
+            [id]
+        );
+        res.json(result.rows);
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Error fetching participants' });
+    }
+};
+
+exports.updateParticipantStatus = async (req, res) => {
+    const { id, userId: targetUserId } = req.params;
+    const { status } = req.body; // 'accepted', 'rejected'
+    const organizerId = req.user.id;
+    const db = req.db;
+    const io = req.io;
+
+    try {
+        // Verify current user is the organizer
+        const eventCheck = await db.query('SELECT created_by FROM events WHERE id = $1', [id]);
+        if (eventCheck.rows[0]?.created_by !== organizerId) {
+            return res.status(403).json({ message: 'Forbidden' });
+        }
+
+        await db.query(
+            'UPDATE event_participants SET status = $1 WHERE event_id = $2 AND user_id = $3',
+            [status, id, targetUserId]
+        );
+
+        // Notify user via socket if they are in an active session
+        io.to(`user_${targetUserId}`).emit('status_update', { eventId: id, status });
+
+        res.json({ message: `Participant ${status}` });
+    } catch (err) {
+        console.error(err);
+        res.status(500).json({ message: 'Error updating status' });
+    }
+};

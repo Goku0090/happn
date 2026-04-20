@@ -65,6 +65,36 @@ app.get('/', (req, res) => {
 io.on('connection', (socket) => {
     console.log('A user connected:', socket.id);
 
+    // Join specialized rooms
+    socket.on('join_chat', ({ eventId, type }) => {
+        const room = `event_${eventId}_${type}`;
+        socket.join(room);
+        console.log(`User ${socket.id} joined chat room: ${room}`);
+    });
+
+    socket.on('join_user_room', (userId) => {
+        socket.join(`user_${userId}`);
+        console.log(`Socket ${socket.id} joined personal notification room: user_${userId}`);
+    });
+
+    socket.on('send_message', async (data) => {
+        const { event_id, user_id, user_name, content, type } = data;
+        const room = `event_${event_id}_${type}`;
+
+        try {
+            // Persist to database
+            const result = await pool.query(
+                'INSERT INTO messages (event_id, user_id, user_name, content, type) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+                [event_id, user_id, user_name, content, type]
+            );
+
+            // Broadcast to the specific room
+            io.to(room).emit('chat_message', result.rows[0]);
+        } catch (err) {
+            console.error('Error saving message:', err);
+        }
+    });
+
     socket.on('disconnect', () => {
         console.log('User disconnected:', socket.id);
     });

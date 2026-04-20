@@ -8,4 +8,9 @@ router.get('/my-events', authMiddleware, eventController.getMyEvents);
 router.post('/', authMiddleware, eventController.createEvent);
 router.post('/:id/join', authMiddleware, eventController.joinEvent);
 
+// Chat & Management
+router.get('/:id/messages', eventController.getEventMessages);
+router.get('/:id/participants', authMiddleware, eventController.getParticipants);
+router.patch('/:id/participants/:userId', authMiddleware, eventController.updateParticipantStatus);
+
 module.exports = router;
